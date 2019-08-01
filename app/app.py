@@ -2,8 +2,9 @@ import auth
 
 from telethon import events
 
-from settings import ENV
+from settings import CONFIG, FILTER_QUERY
 from utils import validate_presence
+from filtration import check_message
 
 
 # ===========================
@@ -11,12 +12,16 @@ from utils import validate_presence
 # ===========================
 
 # initial validation
-validate_presence(ENV['creds'], ('api_id', 'api_hash'))
+validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
 # todo: validate rules
 
-client = auth.connect(ENV['creds'])
 
-@client.on(events.NewMessage(incoming=True, chats=ENV['creds']['source_chats']))
+@client.on(events.NewMessage(incoming=True, chats=CONFIG['creds']['source_chats']))
 async def handle_message(event):
-    # fitrate and repost
-    pass
+    if check_message(event.message, FILTER_QUERY):
+        for reciever in CONFIG['creds']['target_chats']:
+            await client.send_message(reciever, event.message)
+
+client = auth.connect(CONFIG['creds'])
+client.run_until_disconnected()
+

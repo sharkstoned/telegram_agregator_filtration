@@ -43,9 +43,3 @@ def validate_presence(data, necessary_attrs):
             raise Exception(f'No "{attr}" attribute in credentials file')
 
 
-def filtrate(rules, data):
-    pass
-
-
-def parse_message(body):
-
