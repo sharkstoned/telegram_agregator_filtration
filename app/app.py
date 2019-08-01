@@ -15,13 +15,13 @@ from filtration import check_message
 validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
 # todo: validate rules
 
+client = auth.connect(CONFIG['creds'])
 
 @client.on(events.NewMessage(incoming=True, chats=CONFIG['creds']['source_chats']))
 async def handle_message(event):
     if check_message(event.message, FILTER_QUERY):
         for reciever in CONFIG['creds']['target_chats']:
-            await client.send_message(reciever, event.message)
+            await client.send_message(int(reciever), event.message)
 
-client = auth.connect(CONFIG['creds'])
 client.run_until_disconnected()
 

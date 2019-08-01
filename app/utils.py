@@ -1,34 +1,14 @@
 import warnings
 import yaml
 
-from settings import ENV, ENV_FILES_PATHS
+# todo: add validation
+def update_config(config, update, file_path):
+    updated = {**config, **update}
 
-
-class InvalidDataWarning(UserWarning):
-    pass
-
-
-# todo: rewrite abstract
-def update_creds(data):
-    # data validation
-    for key, value in data.items():
-        if value is None:
-            warnings.warn(f'Credentials were not updated'
-	        	  'due to incorrect data: "{key}" must not be None',
-			  InvalidDataWarning)
-            return
-        if value == '':
-            warnings.warn(f'Credentials were not updated'
-	        	  'due to incorrect data: "{key}" must not be an empty string',
-			  InvalidDataWarning)
-            return
-
-    updated = {**ENV['creds'], **data}
-
-    with open(ENV_FILES_PATHS['credentials'], 'w+') as file:
+    with open(file_path, 'w+') as file:
         file.write(yaml.dump(updated))
 
-    ENV['creds'] = updated
+    config = updated
 
 
 def load_yml(filepath):

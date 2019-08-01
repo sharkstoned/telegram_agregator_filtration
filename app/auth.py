@@ -1,8 +1,8 @@
 from telethon import TelegramClient
 from telethon.sessions import StringSession
 
-from settings import ENV
-from utils import update_creds
+from settings import CONFIG, CONFIG_FILES_PATHS
+from utils import update_config
 
 
 def connect(creds):
@@ -21,7 +21,9 @@ def connect(creds):
     client.start(*start_params)
 
     if client.is_connected():
-        update_creds({'session_id': client.session.save()})
+        update_config(CONFIG['creds'],
+                {'session_id': client.session.save()},
+                CONFIG_FILES_PATHS['creds'])
     else:
         raise Exception('Client was not connected')
 

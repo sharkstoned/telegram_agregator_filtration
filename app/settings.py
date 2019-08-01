@@ -17,8 +17,8 @@ CONFIG_FILES_PATHS = {
 }
 
 
-CONFIG = {section:load_yml(path) for (section,path) in CONFIG_FILES_PATHS}
+CONFIG = {section:load_yml(path) for (section, path) in CONFIG_FILES_PATHS.items()}
 
 
-FILTER_QUERY = build_query_tree(CONFIG)
+FILTER_QUERY = build_query_tree(CONFIG['filtration_rules'])
 
