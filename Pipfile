@@ -9,6 +9,7 @@ verify_ssl = true
 telethon = "*"
 pyyaml = "*"
 ipython = "*"
+pathlib = "*"
 
 [requires]
 python_version = "3.7"

@@ -17,6 +17,10 @@ validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
 
 client = auth.connect(CONFIG['creds'])
 
+# ===========================
+# * listener
+# ===========================
+
 source_chats = [int(source) for source in CONFIG['creds']['source_chats']]
 
 @client.on(events.NewMessage(chats=source_chats))

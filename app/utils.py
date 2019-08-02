@@ -2,17 +2,17 @@ import warnings
 import yaml
 
 # todo: add validation
-def update_config(config, update, file_path):
+def update_config(config, update, filepath):
     updated = {**config, **update}
 
-    with open(file_path, 'w+') as file:
+    with filepath.open(mode='w+') as file:
         file.write(yaml.dump(updated))
 
     config = updated
 
 
 def load_yml(filepath):
-    with open(filepath, 'r') as stream:
+    with filepath.open(mode='r') as stream:
         return yaml.safe_load(stream)
 
 
