@@ -1,0 +1,21 @@
+map:
+  param_a:
+    0: 'some value'
+    1: 'some value'
+    2: 'some value'
+    3: 'some value'
+  param_b:
+    'key1': 'some value'
+    'key2': 'some value'
+    'key3': 'some value'
+
+active_rules:
+  param_a:
+    - 2
+    - 3
+  param_b:
+    - 'key1'
+    - 'key3'
+
+# 1. Names of parameters in 'active rules' must match ones from 'map'
+# 2. In 'map' dicts are provided, while in 'active rules' lists of keys
