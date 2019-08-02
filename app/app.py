@@ -17,7 +17,9 @@ validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
 
 client = auth.connect(CONFIG['creds'])
 
-@client.on(events.NewMessage(incoming=True, chats=CONFIG['creds']['source_chats']))
+source_chats = [int(source) for source in CONFIG['creds']['source_chats']]
+
+@client.on(events.NewMessage(chats=source_chats))
 async def handle_message(event):
     if check_message(event.message, FILTER_QUERY):
         for reciever in CONFIG['creds']['target_chats']:
