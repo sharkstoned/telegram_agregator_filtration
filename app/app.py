@@ -2,8 +2,8 @@ import auth
 
 from telethon import events
 
-from settings import CONFIG, FILTER_QUERY
-from utils import validate_presence
+from settings import CONFIG, FILTER_QUERY , CONFIG_FILES_PATHS
+from utils import validate_presence, update_config
 from filtration import check_message
 
 
@@ -16,6 +16,10 @@ validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
 # todo: validate rules
 
 client = auth.connect(CONFIG['creds'])
+
+update_config(CONFIG['creds'],
+              {'session_id': client.session.save()},
+              CONFIG_FILES_PATHS['creds'])
 
 # ===========================
 # * listener
