@@ -1,37 +1,53 @@
-import auth
+import argparse
 
-from telethon import events
-
-from settings import CONFIG, FILTER_QUERY , CONFIG_FILES_PATHS
-from utils import validate_presence, update_config
-from filtration import check_message
+from settings import load_settings
 
 
-# ===========================
-# * initialization
-# ===========================
+def main(settings):
+    import auth
 
-# initial validation
-validate_presence(CONFIG['creds'], ('api_id', 'api_hash'))
-# todo: validate rules
+    from telethon import events
 
-client = auth.connect(CONFIG['creds'])
+    from utils import validate_presence, update_config
+    from filtration import check_message
 
-update_config(CONFIG['creds'],
-              {'session_id': client.session.save()},
-              CONFIG_FILES_PATHS['creds'])
+    # ===========================
+    # * initialization
+    # ===========================
 
-# ===========================
-# * listener
-# ===========================
+    # initial validation
+    validate_presence(settings['creds'], ('api_id', 'api_hash'))
+    # todo: validate rules
 
-source_chats = [int(source) for source in CONFIG['creds']['source_chats']]
+    client, session_is_new = auth.connect(settings['creds'])
 
-@client.on(events.NewMessage(chats=source_chats))
-async def handle_message(event):
-    if check_message(event.message, FILTER_QUERY):
-        for reciever in CONFIG['creds']['target_chats']:
-            await client.forward_messages(int(reciever), event.message, event.from_id)
+    if session_is_new:
+        update_config(settings['creds'],
+                      {'session_id': client.session.save()},
+                      settings['CONFIG_FILES_PATHS']['creds'])
 
-client.run_until_disconnected()
+    # ===========================
+    # * listener
+    # ===========================
 
+    source_chats = [int(source) for source in settings['creds']['source_chats']]
+
+    @client.on(events.NewMessage(chats=source_chats))
+    async def handle_message(event):
+        if check_message(event.message, settings['filter_query']):
+            for reciever in settings['creds']['target_chats']:
+                await client.forward_messages(int(reciever), event.message, event.from_id)
+
+    client.run_until_disconnected()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--creds', dest='creds_path', type=str, default='creds.yml',
+                        help='Path to creds config relative to "./configs" directory')
+    parser.add_argument('--filt', dest='filtration_path', type=str, default='filtration.yml',
+                        help='Path to filtration config relative to "./configs" directory')
+
+    settings = load_settings(parser.parse_args())
+
+    main(settings)
