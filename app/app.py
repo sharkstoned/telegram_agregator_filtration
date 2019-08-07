@@ -47,7 +47,8 @@ if __name__ == '__main__':
                         help='Path to creds config relative to "./configs" directory')
     parser.add_argument('--filt', dest='filtration_path', type=str, default='filtration.yml',
                         help='Path to filtration config relative to "./configs" directory')
+    args = vars(parser.parse_args())
 
-    settings = load_settings(parser.parse_args())
+    settings = load_settings(args)
 
     main(settings)
