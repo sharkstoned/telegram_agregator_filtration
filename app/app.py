@@ -1,3 +1,5 @@
+#! python
+
 import argparse
 
 from settings import init_settings
