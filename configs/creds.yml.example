@@ -3,5 +3,5 @@ api_id:
 phone:
 session_id:
 source_chats:
-target_chat:
+target_chats:
 
