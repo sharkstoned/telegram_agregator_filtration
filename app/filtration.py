@@ -1,5 +1,9 @@
 import re
+import logging
 from collections import namedtuple
+
+
+logger = logging.getLogger('app')
 
 
 QueryNode = namedtuple('QueryNode', ('operator', 'children'))
@@ -41,6 +45,7 @@ def check_message(message, query_tree):
         if isinstance(node, str):
             return re.search(node, body) is not None
 
+        logger.error(f'Failed traversing filter query: {node} is a {type(node)}')
         raise ValueError(f'Improper node type found while traversing query: '
                 '{node} is a {type(node)}')
 
