@@ -8,6 +8,7 @@ from settings import init_settings
 def main(settings):
     import auth
     import logging
+    import asyncio
 
     from telethon import events
 
@@ -28,15 +29,17 @@ def main(settings):
     validate_presence(settings['creds'], ('api_id', 'api_hash'))
     # todo: validate rules
 
-    client, new_session = auth.connect(settings['creds'])
+    client, new_user_session = auth.connect_user(settings['creds'])
 
-    if new_session:
+    if new_user_session:
         update_config(settings['creds'],
                       {'session_id': client.session.save()},
                       settings['CONFIG_FILES_PATHS']['creds'])
 
+    bot = auth.connect_bot(settings['creds'])
+
     # ===========================
-    # * listener
+    # * listeners
     # ===========================
 
     source_chats = [int(source) for source in settings['creds']['source_chats']]
@@ -48,10 +51,25 @@ def main(settings):
                 await client.forward_messages(int(reciever), event.message, event.from_id)
                 logger.info('Found matching message')
 
-    logger.info('Listening...')
 
+    @bot.on(events.NewMessage)
+    async def send_placeholder(event):
+        await event.respond('The bot is under development')
+
+    loop = asyncio.get_event_loop()
+
+    logger.info('Bot is active.')
+    logger.info('Listening for messages...')
     print('Press Ctrl-C to stop')
-    client.run_until_disconnected()
+
+    try:
+        loop.run_until_complete(asyncio.gather(
+            client.disconnected,
+            bot.disconnected
+        ))
+    except KeyboardInterrupt:
+        client.disconnect()
+        bot.disconnect()
 
 
 

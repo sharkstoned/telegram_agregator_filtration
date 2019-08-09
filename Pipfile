@@ -9,6 +9,7 @@ verify_ssl = true
 telethon = "*"
 pyyaml = "*"
 ipython = "*"
+redis = "*"
 
 [requires]
 python_version = "3.7"

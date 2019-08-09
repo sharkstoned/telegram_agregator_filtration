@@ -7,7 +7,7 @@ from telethon.sessions import StringSession
 logger = logging.getLogger('app')
 
 
-def connect(creds):
+def connect_user(creds):
     # try connecting with session_id, otherwise authenticate
     try:
         session = StringSession(creds['session_id'])
@@ -38,3 +38,12 @@ def connect(creds):
             logger.error('Client failed to connect using authentication')
             raise Exception('Error occured - client is not connected')
 
+
+def connect_bot(creds):
+    bot = TelegramClient('bot',
+                         creds['api_id'],
+                         creds['api_hash'])
+
+    bot.start(bot_token=creds['bot_token'])
+
+    return bot
