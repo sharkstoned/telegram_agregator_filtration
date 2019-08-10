@@ -17,6 +17,7 @@ def init_settings(exec_params):
     CONFIG_FILES_PATHS = {
         'creds': CONFIGS_PATH / exec_params['creds_path'],
         'filtration_rules': CONFIGS_PATH / exec_params['filtration_path'],
+        'db_connection': CONFIGS_PATH / 'db.yml',
     }
 
     settings['PROJECT_ROOT'] = PROJECT_ROOT
@@ -32,7 +33,7 @@ def init_settings(exec_params):
 
     module = sys.modules[__name__]
     for (key, val) in settings.items():
-        setattr(module, key, val)
+        setattr(module, key.upper(), val)
 
 
     return settings
