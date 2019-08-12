@@ -55,12 +55,16 @@ def main(settings):
     allowed_chats = [int(id) for id in settings['creds']['allowed_chats']]
     button_text = 'Уже хочу! - '
 
-    @client.on(events.NewMessage(chats=source_chats))
-    async def handle_message(event):
-        if check_message(event.message, settings['filter_query']):
+    async def filter_message(msg):
+        if check_message(msg, settings['filter_query']):
             logger.info('Found matching message')
             for reciever in allowed_chats:
-                await bot.send_message(reciever, event.message, buttons=Button.inline(button_text + '0'))
+                await bot.send_message(reciever, msg, buttons=Button.inline(button_text + '0'))
+
+
+    @client.on(events.NewMessage(chats=source_chats))
+    async def handle_message(event):
+        await filter_message(event.message)
 
 
     @bot.on(events.NewMessage)
@@ -77,6 +81,31 @@ def main(settings):
 
 
     # ===========================
+    # * check unread messages
+    # ===========================
+
+    async def check_unread():
+        for chat in source_chats:
+            latest_read_id = await db.get_latest_msg_id(chat)
+            if latest_read_id is not None:
+                unread_messages = await client.get_messages(chat,
+                                                            10000,
+                                                            offset_id=int(latest_read_id),
+                                                            reverse=True)
+
+                for msg in unread_messages:
+                    await filter_message(msg)
+
+    async def prepare_for_shutdown():
+        for chat in source_chats:
+            await db.set_latest_msg_id(
+                chat,
+                (await client.get_messages(chat))[0].id
+            )
+
+    loop.run_until_complete(check_unread())
+
+    # ===========================
     # * running loop
     # ===========================
 
@@ -90,10 +119,11 @@ def main(settings):
             bot.disconnected
         ))
     except KeyboardInterrupt:
+        loop.run_until_complete(prepare_for_shutdown())
         client.disconnect()
         bot.disconnect()
-        loop.close()
         db_conn.close()
+        loop.close()
 
 
 if __name__ == '__main__':

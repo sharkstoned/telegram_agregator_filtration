@@ -21,3 +21,10 @@ async def trigger_vote(message_id, user_id):
 
     return await get_votes_number(message_id)
 
+
+async def set_latest_msg_id(chat_id, message_id):
+    await conn.set(f'{chat_id}:latest_msg', message_id)
+
+
+async def get_latest_msg_id(chat_id):
+    return await conn.get(f'{chat_id}:latest_msg')
