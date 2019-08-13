@@ -98,7 +98,7 @@ def main(settings):
 
     async def prepare_for_shutdown():
         for chat in source_chats:
-            last_read_id = str(await client.get_messages(chat))[0].id
+            last_read_id = str((await client.get_messages(chat))[0].id)
             await db.set_latest_msg_id(chat, last_read_id)
 
     loop.run_until_complete(check_unread())
