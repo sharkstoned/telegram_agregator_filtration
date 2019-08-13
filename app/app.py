@@ -86,11 +86,11 @@ def main(settings):
 
     async def check_unread():
         for chat in source_chats:
-            latest_read_id = await db.get_latest_msg_id(chat)
-            if latest_read_id is not None:
+            last_read_id = await db.get_latest_msg_id(chat)
+            if last_read_id is not None:
                 unread_messages = await client.get_messages(chat,
                                                             10000,
-                                                            offset_id=int(latest_read_id),
+                                                            offset_id=int(last_read_id),
                                                             reverse=True)
 
                 for msg in unread_messages:
@@ -98,10 +98,8 @@ def main(settings):
 
     async def prepare_for_shutdown():
         for chat in source_chats:
-            await db.set_latest_msg_id(
-                chat,
-                (await client.get_messages(chat))[0].id
-            )
+            last_read_id = str(await client.get_messages(chat))[0].id
+            await db.set_latest_msg_id(chat, last_read_id)
 
     loop.run_until_complete(check_unread())
 
