@@ -8,8 +8,10 @@ from settings import init_settings
 def main(settings):
     import logging
     import asyncio
+    import re
     import auth
     import db
+    import spreadsheets
 
     from telethon import events
     from telethon.tl.custom import Button
@@ -42,10 +44,17 @@ def main(settings):
     loop = asyncio.get_event_loop()
 
     # ===========================
-    # * establish db connection
+    # * db connection
     # ===========================
 
     db_conn = loop.run_until_complete(db.establish_connction(settings['db_connection']))
+
+    # ===========================
+    # * google spreadsheets
+    # ===========================
+
+    google_client = spreadsheets.establish_connection(settings['sheets_creds_path'])
+    g_sheet = google_client.open_by_key(settings['sheets_data']['doc_id']).sheet1
 
     # ===========================
     # * listeners
@@ -78,6 +87,18 @@ def main(settings):
         if event.message_id is not None:
             voters_number = await db.trigger_vote(event.message_id, event.sender_id)
             await event.edit(buttons=Button.inline(button_text + str(voters_number)))
+            if voters_number == settings['sheet_write_threshold']:
+                logger.info('Message is liked by sufficient number of users.'
+                            'Writing to doc.')
+                #tel_match = re.search(settings['tel_regex'], event.message.message)
+                #tel = tel_match.string[tel_match.start():tel_match.end()] if tel_match is not None else ''
+
+                #url_match = re.search(settings['url_regex'], event.message.message)
+                #url = url_match.string[url_match.start():url_match.end()] if url_match is not None else ''
+
+                row = (event.message.id, 'url', 'tel')
+                #pdb.set_trace()
+                g_sheet.append_row(row)
 
 
     # ===========================
